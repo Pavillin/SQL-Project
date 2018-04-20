@@ -1,4 +1,5 @@
-use gcc200344974;		/*Tell MySQL which database to use*/
+use sqlproject;		/*Tell MySQL which database to use*/
+#use gcc200344974;	/*keon db*/
 
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS reviews;
@@ -27,7 +28,9 @@ CREATE TABLE items
 CREATE TABLE orders 
 (
 	order_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	order_date DATETIME NOT NULL, /*the date that the the order was put in*/
+    customer_id INT,
+    item_id INT,
+	order_date DATE NOT NULL, /*the date that the the order was put in*/
 	total DEC(6,4) NOT NULL DEFAULT 0,
 	FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
     FOREIGN KEY(item_id) REFERENCES items(item_id)
@@ -42,8 +45,10 @@ CREATE TABLE employees
 
 CREATE TABLE reviews 
 (
+	item_id INT,
+    order_id INT,
 	fiveStarRating INT (1),
-	FOREIGN KEY (item_id) REFERENCES products(item_id),
+	FOREIGN KEY (item_id) REFERENCES items(item_id),
 	FOREIGN KEY (order_id) REFERENCES orders(order_id)
 );
 
@@ -52,10 +57,10 @@ CREATE TABLE order_items
 (
     id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     order_id   INT NOT NULL,
-    product_id INT NOT NULL,
+    item_id INT NOT NULL,
     quantity   INT NOT NULL DEFAULT 1,
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
 
@@ -75,13 +80,13 @@ INSERT INTO items(item_name, description, price) VALUES
 INSERT INTO orders(order_date, total) VALUES	/* orders must have 15-20 entries */
 	('2012-11-11',100.00),
 	('2010-12-10',97.78),
-	('2011-12-15',4000.43),
+	('2011-12-15',98.43),
 	('2011-9-11',17.45),
 	('2013-8-7',319.43),
 	('2013-7-1',289.54),
 	('2014-6-2',69.33),
 	('2015-5-4',99.99),
-	('2015-4-19'999.99),
+	('2015-4-19',9.99),
 	('2016-3-17',35.35),
 	('2016-2-5',1.00),
 	('2017-1-4',34.34),
@@ -89,8 +94,8 @@ INSERT INTO orders(order_date, total) VALUES	/* orders must have 15-20 entries *
 	('2018-11-11',421.34),
 	('2018-11-10',56.77),
 	('2018-10-9',913.66),
-	('2016-12-6',4245.67),
-	('2014-10-5',9999.99);
+	('2016-12-6',45.67),
+	('2014-10-5',99.99);
 
 
 INSERT INTO employees(firstName, lastName) VALUES
