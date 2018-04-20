@@ -1,13 +1,15 @@
 use sqlproject;		/*Tell MySQL which database to use*/
 #use gcc200344974;	/*keon db*/
 
-DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS product_review;
 DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS products_orders;
+DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS customers;
 
+/*table for customers*/
 CREATE TABLE customers 
 (
 	customer_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -17,25 +19,7 @@ CREATE TABLE customers
 	email_address VARCHAR(60) NOT NULL
 );
 
-CREATE TABLE items 
-(
-	item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    item_name VARCHAR(100) NOT NULL,
-    description VARCHAR(1000),
-    price DEC(4,2)
-);
-
-CREATE TABLE orders 
-(
-	order_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
-    item_id INT,
-	order_date DATE NOT NULL, /*the date that the the order was put in*/
-	total DEC(6,4) NOT NULL DEFAULT 0,
-	FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
-    FOREIGN KEY(item_id) REFERENCES items(item_id)
-);
-
+/*table for employees*/
 CREATE TABLE employees 
 (
 	employee_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -43,24 +27,51 @@ CREATE TABLE employees
 	lastName VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE reviews 
+/*table for orders*/
+CREATE TABLE orders 
 (
-	item_id INT,
-    order_id INT,
-	fiveStarRating INT (1),
-	FOREIGN KEY (item_id) REFERENCES items(item_id),
-	FOREIGN KEY (order_id) REFERENCES orders(order_id)
+	order_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	date DATE NOT NULL,
+	total DEC(10,2),
+	customer_id INT,
+    employee_id INT,
+	FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY(employee_id) REFERENCES employees(employee_id)
 );
 
-/*Not sure if we need this */
-CREATE TABLE order_items 
+/*Table for products*/
+CREATE TABLE products 
 (
-    id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    order_id   INT NOT NULL,
-    item_id INT NOT NULL,
-    quantity   INT NOT NULL DEFAULT 1,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (item_id) REFERENCES items(item_id)
+	product_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	product_name VARCHAR(100) NOT NULL,
+	description VARCHAR(8000),
+	price DECIMAL(10,2)
+);
+
+/*make junction table for products and orders*/
+CREATE TABLE products_orders(
+	products_orders_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	quantity INT,
+	product_id INT,
+	order_id INT,
+	FOREIGN KEY(product_id) REFERENCES products(product_id),
+	FOREIGN KEY(order_id) REFERENCES orders(order_id)
+);
+
+/*Table for reviews*/
+CREATE TABLE reviews 
+(
+	review_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fiveStarRating INT(1)
+);
+
+/*Junction table for reviews and products*/
+CREATE TABLE product_review (
+product_review_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+product_id INT NOT NULL,
+review_id INT NOT NULL, 
+FOREIGN KEY (product_id) REFERENCES products(product_id),
+FOREIGN KEY (review_id) REFERENCES reviews(review_id)
 );
 
 
@@ -70,38 +81,56 @@ INSERT INTO customers (first_name, last_name, address, email_address) VALUES
     ('Elizabeth', 'Weatherford','2539 Lockhart Drive', 'ElizabethGWeatherford@mailinator.com'),
     ('Richard', 'Wilson', '1932 Davis Drive', 'RichardRWilson@trashymail.com');
     
-INSERT INTO items(item_name, description, price) VALUES
+INSERT INTO employees(firstName, lastName) VALUES
+	('Bob', 'Smith'),
+    ('Mac', 'Donald'),
+	('Joe', 'Fresh');
+    
+INSERT INTO products(product_name, description, price) VALUES
 	('Hockey Stick', 'Used to control the puck', 99.99),
     ('Shoulder Pads', 'A layer of protection', 69.50),
     ('Helmet', 'Protects head from collisions with an impact-absorbing EPP liner', 55.99),
     ('Shin Pads', 'Shin Guards provide a natural, close-to-the-body fit that helps protect players', 32.99),
 	('Skates', 'Cut through the ice with speed and agility', 85.00);
     
-INSERT INTO orders(order_date, total) VALUES	/* orders must have 15-20 entries */
-	('2012-11-11',100.00),
-	('2010-12-10',97.78),
-	('2011-12-15',98.43),
-	('2011-9-11',17.45),
-	('2013-8-7',319.43),
-	('2013-7-1',289.54),
-	('2014-6-2',69.33),
-	('2015-5-4',99.99),
-	('2015-4-19',9.99),
-	('2016-3-17',35.35),
-	('2016-2-5',1.00),
-	('2017-1-4',34.34),
-	('2017-6-1',654.76),
-	('2018-11-11',421.34),
-	('2018-11-10',56.77),
-	('2018-10-9',913.66),
-	('2016-12-6',45.67),
-	('2014-10-5',99.99);
-
-
-INSERT INTO employees(firstName, lastName) VALUES
-	('Bob', 'Smith'),
-    ('Mac', 'Donald'),
-	('Joe', 'Fresh');
+INSERT INTO orders VALUES	/* orders must have 15-20 entries */
+	(1,'2012-11-11',100,1,1),
+	(2,'2010-12-10',200,2,2),
+	(3,'2011-12-15',300,3,3),
+	(4,'2011-9-11',400,4,3),
+	(5,'2013-8-7',500,1,2),
+	(6,'2013-7-1',100,2,1),
+	(7,'2014-6-2',200,3,2),
+	(8,'2015-5-4',300,4,1),
+	(9,'2015-4-19',400,1,3),
+	(10,'2016-3-17',500,2,2),
+	(11,'2016-2-5',100,3,1),
+	(12,'2017-1-4',200,4,2),
+	(13,'2017-6-1',300,1,3),
+	(14,'2018-11-11',400,2,2),
+	(15,'2018-11-10',500,3,1),
+	(16,'2018-10-9',100,4,1),
+	(17,'2016-12-6',200,1,2),
+	(18,'2014-10-5',300,2,3);
+    
+INSERT INTO products_orders VALUES (1,1,1,1);
+INSERT INTO products_orders VALUES (2,4,2,2);
+INSERT INTO products_orders VALUES (3,6,3,3);
+INSERT INTO products_orders VALUES (4,2,4,4);
+INSERT INTO products_orders VALUES (5,6,1,5);
+INSERT INTO products_orders VALUES (6,9,2,6);
+INSERT INTO products_orders VALUES (7,1,3,7);
+INSERT INTO products_orders VALUES (8,6,4,8);
+INSERT INTO products_orders VALUES (9,2,1,9);
+INSERT INTO products_orders VALUES (10,7,2,10);
+INSERT INTO products_orders VALUES (11,4,3,11);
+INSERT INTO products_orders VALUES (12,1,4,12);
+INSERT INTO products_orders VALUES (13,4,1,13);
+INSERT INTO products_orders VALUES (14,1,2,14);
+INSERT INTO products_orders VALUES (15,5,3,15);
+INSERT INTO products_orders VALUES (16,2,4,16);
+INSERT INTO products_orders VALUES (17,1,1,17);
+INSERT INTO products_orders VALUES (18,2,2,18);
 
 INSERT INTO reviews(fiveStarRating) VALUES
 	(5),
