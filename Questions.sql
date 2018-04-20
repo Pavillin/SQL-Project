@@ -5,7 +5,13 @@ INNER JOIN orders ON customers.customer_id = orders.customer_id
 GROUP BY customers.customer_id;
 
 #b. All customers, orders, and reviews ordered by review date (newest first).
-
+SELECT customers.first_name, customers.last_name, orders.order_id, reviews.fiveStarRating FROM customers
+INNER JOIN orders ON customers.customer_id=orders.customer_id
+INNER JOIN products_orders ON products_orders.order_id = orders.order_id
+INNER JOIN products ON products.product_id = products_orders.product_id
+INNER JOIN product_review ON product_review.product_review_id = products.product_id
+INNER JOIN reviews ON reviews.review_id = product_review.product_review_id
+ORDER BY review_date DESC;
 
 #c. All customers and orders, sorted by price of orders highest first.
 SELECT customers.first_name, orders.order_id
