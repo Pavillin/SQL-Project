@@ -62,7 +62,8 @@ CREATE TABLE products_orders(
 CREATE TABLE reviews 
 (
 	review_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    fiveStarRating INT(1)
+    fiveStarRating INT(1) NOT NULL,
+    review_date DATE NOT NULL
 );
 
 /*Junction table for reviews and products*/
@@ -132,9 +133,12 @@ INSERT INTO products_orders VALUES (16,2,4,16);
 INSERT INTO products_orders VALUES (17,1,1,17);
 INSERT INTO products_orders VALUES (18,2,2,18);
 
-INSERT INTO reviews(fiveStarRating) VALUES
-	(5),
-	(2);
+INSERT INTO reviews(fiveStarRating, review_date) VALUES
+	(5, '2012-6-11'),
+    (3, '2013-4-21'),
+    (2, '2014-7-1'),
+    (3, '2014-1-6'),
+	(4, '2015-12-19');
 
 
 #a. All orders, items grouped by customer
